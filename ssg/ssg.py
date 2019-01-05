@@ -6,6 +6,7 @@ import markdown2
 import frontmatter
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from PIL import Image
+from PIL import ImageFilter
 from shutil import copyfile
 
 
@@ -27,17 +28,18 @@ class page():
             self.createdDate = getmtime(md_file)
             for key in post.keys():
                 setattr(self,key,post[key])
-        if isdir(contentDir):
-            for sub_dir in filter(lambda d : isdir(join(contentDir, d)), listdir(contentDir)) :
-                setattr(self, sub_dir, [f for f in listdir(join(contentDir, sub_dir)) if isfile(join(contentDir, sub_dir, f)) and splitext(f)[1] != ".md" ])
-                self.imageFiles.extend( [ join(contentDir, sub_dir, f) for f in getattr(self,sub_dir) if splitext(f)[1].lower() in (".jpg", ".png") ] )
-
-
+            
+            self.imageFiles = []
+            if isdir(contentDir):
+                for sub_dir in filter(lambda d : isdir(join(contentDir, d)), listdir(contentDir)) :
+                    setattr(self, sub_dir, [f for f in listdir(join(contentDir, sub_dir)) if isfile(join(contentDir, sub_dir, f)) and splitext(f)[1] != ".md" ])
+                    self.imageFiles.extend( [ join(contentDir, sub_dir, f) for f in getattr(self,sub_dir) if splitext(f)[1].lower() in (".jpg", ".png") ] )
+                    
 class ssg():
 
     # list of pages
     site = []
-    images = [ { 'label' : 'original', 'x': None, 'y': None } ]
+    images = [ ]
     asset_env = None
 
     def buildSite(self, contentDir="/"):
@@ -70,6 +72,9 @@ class ssg():
         return list(map( lambda fichier : copyfile(fichier, join(destination_dir, basename(fichier) )), 
                         getAllFiles(filterFunc = lambda f : f ) ))
         
+    def checkOrCreateDir(self, dirName):
+        if not isdir( dirName ):
+            mkdir(dirName)
 
     def render(self, template_dir, destination_dir):
         env = Environment(loader=FileSystemLoader( template_dir ), autoescape=select_autoescape(['html', 'xml']))
@@ -85,31 +90,50 @@ class ssg():
 
             # generating images
             for imageToProcess in page.imageFiles:
+                print("Processing : " + imageToProcess )
+                im = Image.open(imageToProcess)
+
+                # Make a light image with the same size for lazy-loading
+                bluredImage = im.copy()
+                originalSize = bluredImage.size
+                # Reduce to a single picture to get the dominant color
+                bluredImage.thumbnail( size = (1, 1) )
+                # Resize it to the original size to have a simple placeholder
+                bluredImage = bluredImage.resize( size = originalSize)
+                self.checkOrCreateDir( join(destination_dir, 'blur') )
+                bluredImage.save(join(destination_dir, 'blur', basename(imageToProcess)))
+                bluredImage.close()
+
+                # Make a copy of original
+                self.checkOrCreateDir( join(destination_dir, 'original') )
+                copyfile(imageToProcess, join(destination_dir, 'original', basename(imageToProcess) )) 
+
+                # Generate all the others requested sizes
                 for imageProperties in self.images:
-                    
-                    # check if dir already exists
-                    if not isdir( join(destination_dir, imageProperties['label']) ):
-                        mkdir(join(destination_dir, imageProperties['label']))
-                    
-                    im = Image.open(imageToProcess)
-                    # firstly crop to get the expected ration
+                    # crop to get the expected ratio
+                    resizedImage = im.copy()
                     if imageProperties['x'] and imageProperties['y']:
-                        if (float(im.size[0])/float(im.size[1])) > (float(imageProperties['x'])/float(imageProperties['y'])):
+                        if (float(resizedImage.size[0])/float(resizedImage.size[1])) > (float(imageProperties['x'])/float(imageProperties['y'])):
                             # we need to crop x
-                            xRatio = float(imageProperties['x'])/float(im.size[0])
+                            xRatio = float(imageProperties['x'])/float(resizedImage.size[0])
                             # crop box is a (left, upper, right, lower)-tuple.
-                            left = (im.size[0] - imageProperties['x']*float(im.size[1])/float(imageProperties['y']) )/2
-                            right = left+imageProperties['x']*float(im.size[1])/float(imageProperties['y'])
+                            left = (resizedImage.size[0] - imageProperties['x']*float(resizedImage.size[1])/float(imageProperties['y']) )/2
+                            right = left+imageProperties['x']*float(resizedImage.size[1])/float(imageProperties['y'])
                             upper=0
-                            lower = im.size[1]
+                            lower = resizedImage.size[1]
                         else :
                             left=0
-                            right = im.size[0]
-                            upper = (im.size[1] - imageProperties['y']*float(im.size[0])/float(imageProperties['x']) )/2
-                            lower = upper+imageProperties['y']*float(im.size[0])/float(imageProperties['x'])
-                        im = im.crop( (int(left), int(upper), int(right), int(lower) ) )
-                        
-                    im.thumbnail( size=(imageProperties['x'] if imageProperties['x'] else 10000, imageProperties['y'] if imageProperties['y'] else 10000),resample=Image.LANCZOS )
-                    im.save(join(destination_dir, imageProperties['label'], basename(imageToProcess)))
+                            right = resizedImage.size[0]
+                            upper = (resizedImage.size[1] - imageProperties['y']*float(resizedImage.size[0])/float(imageProperties['x']) )/2
+                            lower = upper+imageProperties['y']*float(resizedImage.size[0])/float(imageProperties['x'])
+                        resizedImage = resizedImage.crop( (int(left), int(upper), int(right), int(lower) ) )
+                    # resize it    
+                    resizedImage.thumbnail( size=(imageProperties['x'] if imageProperties['x'] else 10000, imageProperties['y'] if imageProperties['y'] else 10000),resample=Image.LANCZOS )
+                    # and save it
+                    self.checkOrCreateDir( join(destination_dir, imageProperties['label']) )
+                    resizedImage.save(join(destination_dir, imageProperties['label'], basename(imageToProcess)))
+                    resizedImage.close()
+                im.close()
+
                     
 

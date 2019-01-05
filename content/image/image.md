@@ -5,6 +5,8 @@ description: Tiny SSG repère automatiquement les fichiers image au format jpg e
 layout: Post
 ---
 
-# Installation
+## Installation
 
-Créer un environnement virtuel et installer les dépendances.
+One of the challenges of lazy loaded images is that if there’s no placeholder in position, the loaded images will then flash afterwards, making the page appear more slow to the user.
+
+

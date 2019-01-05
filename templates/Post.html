@@ -3,7 +3,7 @@
 {% block contenu %}
 
     <main role="main" class="flex-auto w-full container max-w-xl mx-auto py-16 px-6">
-        <img src="dimension900x500/{{page.main_picture[0]}}" alt="Getting Started cover image" class="mb-2"> 
+        <img class="lozad" src="blur/{{page.main_picture[0]}}"  data-src="original/{{page.main_picture[0]}}" alt="{{ page.title }}" class="mb-2"> 
         <h1 class="leading-none mb-2">Getting Started</h1> 
         <p class="text-grey-darker text-xl md:mt-0">
             {{ page.author }}  •  {{ page.createdDate }}
@@ -17,8 +17,8 @@
         
         <nav class="flex justify-between text-sm md:text-base">
             <div>
-                <a href="/" title="Back to blog">
-                    ← Back to blog
+                <a href="index.html" title="Back to blog">
+                    ← Back to home
                 </a>
             </div>
             
