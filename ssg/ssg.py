@@ -87,6 +87,7 @@ class ssg():
     def render(self, template_dir, destination_dir):
         env = Environment(loader=FileSystemLoader( template_dir ), autoescape=select_autoescape(['html', 'xml']))
         self.files = []
+        self.checkOrCreateDir( destination_dir )
         for page in filter(lambda p: hasattr(p, 'layout'),  self.site) :
             
             print("Generating " + page.slug)
