@@ -61,6 +61,7 @@ class ssg():
         self.images.append( {'label' : label, 'x':x, 'y':y } )
 
     def renderAssets(self, assetDir, destination_dir):
+        self.checkOrCreateDir( destination_dir )
         # list all the files in assetDit and sub dirs
         def getAllFiles(filterFunc = lambda f : f):
             for (sourceDir, subDir, foundFiles) in walk(assetDir):
@@ -75,6 +76,7 @@ class ssg():
         
     def renderServiceWorker(self, template_dir, destination_dir):
         env = Environment(loader=FileSystemLoader( template_dir ), autoescape=select_autoescape(['html', 'xml']))
+        self.checkOrCreateDir( destination_dir )
         template = env.get_template("serviceWorker.js")
         fichier_sortie = open(join(destination_dir, "serviceWorker.js") , 'w+', encoding='utf-8')
         fichier_sortie.write(template.render(files=self.files))
