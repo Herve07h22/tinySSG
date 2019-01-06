@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from PIL import Image
 from PIL import ImageFilter
 from shutil import copyfile
-
+from time import strftime, gmtime
 
 class page():
     id = ""
@@ -25,7 +25,7 @@ class page():
             self.content =  markdown2.markdown(post.content)
             self.id = basename(contentDir)
             self.slug = self.id+".html"
-            self.createdDate = getmtime(md_file)
+            self.createdDate = strftime("%d %b %Y", gmtime(getmtime(md_file)))
             for key in post.keys():
                 setattr(self,key,post[key])
             
@@ -90,7 +90,7 @@ class ssg():
 
             # generating images
             for imageToProcess in page.imageFiles:
-                print("Processing : " + imageToProcess )
+                print("Processing image : " + imageToProcess )
                 im = Image.open(imageToProcess)
 
                 # Make a light image with the same size for lazy-loading

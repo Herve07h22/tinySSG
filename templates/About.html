@@ -5,8 +5,9 @@
         
         <!-- Slot -->
         <main role="main" class="flex-auto w-full container max-w-xl mx-auto py-16 px-6">
-                <h1>About</h1> 
-                <img src="dimension200x200/{{page.main_picture[0]}}" alt="{{ page.title }}" class="flex rounded-full h-64 w-64 bg-contain mx-auto md:float-right my-6 md:ml-10"> 
+                <h1>{{ page.title }}</h1>
+                <!-- Image resized to square -->
+                <img class="flex rounded-full h-64 w-64 bg-contain mx-auto md:float-right my-6 md:ml-10" src="square/{{page.main_picture[0]}}" alt="{{ page.title }}" > 
                 
                 <p class="mb-6">
                     {{ page.content | safe}}

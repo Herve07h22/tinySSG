@@ -51,12 +51,12 @@
             
             <div class="flex flex-col md:flex-row flex-wrap">
                 
-                {% for page_item in site %}
+                {% for page_item in site if page_item.layout=="Post" %}
 
                 <div class="w-full md:w-1/2 md:px-4 animation-txt">
                     <div class="flex flex-col mb-4">
                         <!-- Original pictures are downsized when diplayed as thumbnails -->
-                        <img src="dimension400x200/{{page_item.main_picture[0]}}" class="mb-6" >
+                        <img src="dimension400x200/{{page_item.main_picture[0]}}" class="mb-6 self-center max-w-md md:max-w-full" >
                         <p class="text-grey-darker font-medium my-2">
                             {{ page_item.date }}
                         </p>
