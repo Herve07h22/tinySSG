@@ -29,7 +29,7 @@
                     <textarea id="contact-message" rows="4" name="message" placeholder="A lovely message here." required="required" class="block w-full border shadow rounded-lg outline-none appearance-none mb-2 px-4 py-6"></textarea>
                 </div> 
                 <div class="flex justify-end w-full">
-                    <button onclick="sendMail()" class="block bg-blue hover:bg-blue-dark text-white text-sm font-semibold tracking-wide uppercase shadow rounded-lg cursor-pointer px-6 py-3">
+                    <button aria-label="Submit the contact form" onclick="sendMail()" class="block bg-blue hover:bg-blue-dark text-white text-sm font-semibold tracking-wide uppercase shadow rounded-lg cursor-pointer px-6 py-3">
                         Submit
                     </button>
                 </div>
@@ -43,8 +43,8 @@
             var at = String.fromCharCode(64);
             var dotcom="example.com";
             var mail="mailto:";
-            var subject = "Message from " + $("#contact-name")[0].value + " (" + $("#contact-email")[0].value + ")"
-            var body = $("#contact-message")[0].value
+            var subject = "Message from " + document.getElementById("contact-name").value + " (" + document.getElementById("contact-email").value + ")"
+            var body = document.getElementById("contact-message").value
             console.log(mail+recipient+at+dotcom+'?subject='+subject+'&body='+body);
             window.open(mail+recipient+at+dotcom+'?subject='+subject+'&body='+body);
         }

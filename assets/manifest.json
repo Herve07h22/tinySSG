@@ -1,0 +1,13 @@
+{
+    "name": "TinySSG",
+    "short_name": "TinySSG",
+    "icons": [{
+        "src": "icon512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+    }],
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#3490dc",
+    "theme_color": "#3490dc"
+}

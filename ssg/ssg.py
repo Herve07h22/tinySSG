@@ -22,10 +22,11 @@ class page():
         md_file = join(contentDir, mdFile)
         if isfile(md_file) :
             post = frontmatter.load(md_file)
-            self.content =  markdown2.markdown(post.content)
+            self.content =  markdown2.markdown(post.content, extras=['fenced-code-blocks'])
             self.id = basename(contentDir)
             self.slug = self.id+".html"
-            self.createdDate = strftime("%d %b %Y", gmtime(getmtime(md_file)))
+            self.createdDateTxt = strftime("%d %b %Y", gmtime(getmtime(md_file)))
+            self.createdDate = getmtime(md_file)
             for key in post.keys():
                 setattr(self,key,post[key])
             
@@ -72,15 +73,24 @@ class ssg():
         return list(map( lambda fichier : copyfile(fichier, join(destination_dir, basename(fichier) )), 
                         getAllFiles(filterFunc = lambda f : f ) ))
         
+    def renderServiceWorker(self, template_dir, destination_dir):
+        env = Environment(loader=FileSystemLoader( template_dir ), autoescape=select_autoescape(['html', 'xml']))
+        template = env.get_template("serviceWorker.js")
+        fichier_sortie = open(join(destination_dir, "serviceWorker.js") , 'w+', encoding='utf-8')
+        fichier_sortie.write(template.render(files=self.files))
+        fichier_sortie.close()
+    
     def checkOrCreateDir(self, dirName):
         if not isdir( dirName ):
             mkdir(dirName)
 
     def render(self, template_dir, destination_dir):
         env = Environment(loader=FileSystemLoader( template_dir ), autoescape=select_autoescape(['html', 'xml']))
+        self.files = []
         for page in filter(lambda p: hasattr(p, 'layout'),  self.site) :
             
             print("Generating " + page.slug)
+            self.files.append(page.slug)
             
             # Generating html
             template = env.get_template( page.layout if splitext(page.layout)[1] else page.layout+".html")
@@ -103,10 +113,12 @@ class ssg():
                 self.checkOrCreateDir( join(destination_dir, 'blur') )
                 bluredImage.save(join(destination_dir, 'blur', basename(imageToProcess)))
                 bluredImage.close()
+                self.files.append(join('blur', basename(imageToProcess)))
 
                 # Make a copy of original
                 self.checkOrCreateDir( join(destination_dir, 'original') )
-                copyfile(imageToProcess, join(destination_dir, 'original', basename(imageToProcess) )) 
+                copyfile(imageToProcess, join(destination_dir, 'original', basename(imageToProcess) ))
+                self.files.append(join('original', basename(imageToProcess))) 
 
                 # Generate all the others requested sizes
                 for imageProperties in self.images:
@@ -133,6 +145,7 @@ class ssg():
                     self.checkOrCreateDir( join(destination_dir, imageProperties['label']) )
                     resizedImage.save(join(destination_dir, imageProperties['label'], basename(imageToProcess)))
                     resizedImage.close()
+                    self.files.append(join(imageProperties['label'], basename(imageToProcess)))
                 im.close()
 
                     

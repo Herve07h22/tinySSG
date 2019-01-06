@@ -10,3 +10,4 @@ if __name__ =='__main__':
     mon_site.addImageProcessing( label='square', x=400, y=400  )
     mon_site.renderAssets( assetDir=join(getcwd(), "assets") , destination_dir=join(getcwd(), "dist") )
     mon_site.render( template_dir=join(getcwd(), "templates") , destination_dir=join(getcwd(), "dist") )
+    mon_site.renderServiceWorker( template_dir=join(getcwd(), "templates") , destination_dir=join(getcwd(), "dist") )

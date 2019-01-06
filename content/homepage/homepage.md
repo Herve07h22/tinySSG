@@ -1,6 +1,6 @@
 ---
-title: Tiny SSG facilite la construction des sites statiques
-mailchimp_id: xxxxxxxxxxxxxxxxxx
+titre: Tiny SSG facilite la construction des sites statiques
+mailchimp_id: https://your-mail-chimp-list-manage-url/subscribe/post?u=xxxxxxxxxxxx&amp;id=xxxxxxxxxx
 layout: Homepage
 slug: index.html
 ---
