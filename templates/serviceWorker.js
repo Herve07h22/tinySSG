@@ -1,4 +1,4 @@
-var cacheName = 'timerPWA-1'; //The name of the cache, named so that different caches can be updated without breaking other caches.
+var cacheName = 'tinySSG'; //The name of the cache, named so that different caches can be updated without breaking other caches.
 
 /**All of the files that will be cached and loaded from cache when possible.*/
 var filesToCache = [
@@ -54,7 +54,7 @@ self.addEventListener('fetch', function (e)
     /**Evaluates the fetch request and checks to see if it is avaiable in the cache,
      * if it is, it will respond with the cached version, if not, it uses fetch to get
      * a copy from the network. The response is passed back to the webpage via event.respondWith()*/
-    console.log('[ServiceWorker] Fetch', e.request.url);
+    
     e.respondWith(
         caches.match(e.request).then(function (response)
         {
