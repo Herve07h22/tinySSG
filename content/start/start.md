@@ -18,6 +18,7 @@ Ensuite, installer les dépendances dans un environnement dédié.
 ```
 cd tinySSG
 python -m venv tinyenv
+./tinyenv/Script/activate
 pip install -r requirements.txt
 ```
 
