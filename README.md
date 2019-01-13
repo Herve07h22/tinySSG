@@ -130,6 +130,14 @@ mon_site.addImageProcessing( label='square', x=400, y=400  )
 
 This pre processing may be very usefull to create some thumbnails for example. 
 
+Unexpected rotation of images is a common issue related to their EXIF metadata. 
+TinySSG is able to read the EXIF metadata, and rotate the images at the pre-process stage. 
+To disable this, just set the `exif` parameter of the constructor to false : 
+
+```
+mon_site = ssg(contentDir=join(getcwd(), "content"), exif=False)
+```
+
 ## Deploy to Netlify
 
 Netlify is my favourite hosting service for static sites. 
