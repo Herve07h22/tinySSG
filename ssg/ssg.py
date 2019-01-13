@@ -5,7 +5,7 @@ from os import listdir, getcwd, walk, mkdir
 import markdown2
 import frontmatter
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from PIL import Image
+from PIL import Image, ExifTags
 from PIL import ImageFilter
 from shutil import copyfile
 from time import strftime, gmtime
@@ -53,7 +53,17 @@ class ssg():
         for sub_dir in list_of_sub_dirs:
             self.buildSite(join(contentDir, sub_dir))
 
-    def __init__(self, contentDir="/"):
+    def __init__(self, contentDir="/", exif=True):
+        # findinf 'Orientation' id in exif metadata
+        if exif:
+            # preparing exif id
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation]=='Orientation':
+                    self.orientation = orientation
+                    break
+        else:
+            self.orientation = None
+
         self.buildSite(contentDir)
 
     def addImageProcessing(self, label="thumbnails", x=40, y=40):
@@ -106,6 +116,17 @@ class ssg():
                 print("Processing image : " + imageToProcess )
                 im = Image.open(imageToProcess)
 
+                # check the orientation
+                if self.orientation and im._getexif():
+                    exif=dict(im._getexif().items())
+                    if self.orientation in exif :
+                        if exif[self.orientation] == 3:
+                            im=im.rotate(180, expand=True)
+                        elif exif[self.orientation] == 6:
+                            im=im.rotate(270, expand=True)
+                        elif exif[self.orientation] == 8:
+                            im=im.rotate(90, expand=True)
+
                 # Make a light image with the same size for lazy-loading
                 bluredImage = im.copy()
                 originalSize = bluredImage.size
@@ -114,13 +135,13 @@ class ssg():
                 # Resize it to the original size to have a simple placeholder
                 bluredImage = bluredImage.resize( size = originalSize)
                 self.checkOrCreateDir( join(destination_dir, 'blur') )
-                bluredImage.save(join(destination_dir, 'blur', basename(imageToProcess)))
+                bluredImage.save(join(destination_dir, 'blur', basename(imageToProcess)), exif=bytes())
                 bluredImage.close()
                 self.files.append(join('blur', basename(imageToProcess)))
 
                 # Make a copy of original
                 self.checkOrCreateDir( join(destination_dir, 'original') )
-                copyfile(imageToProcess, join(destination_dir, 'original', basename(imageToProcess) ))
+                im.save(join(destination_dir, 'original', basename(imageToProcess) ), exif=bytes())
                 self.files.append(join('original', basename(imageToProcess))) 
 
                 # Generate all the others requested sizes
@@ -146,7 +167,7 @@ class ssg():
                     resizedImage.thumbnail( size=(imageProperties['x'] if imageProperties['x'] else 10000, imageProperties['y'] if imageProperties['y'] else 10000),resample=Image.LANCZOS )
                     # and save it
                     self.checkOrCreateDir( join(destination_dir, imageProperties['label']) )
-                    resizedImage.save(join(destination_dir, imageProperties['label'], basename(imageToProcess)))
+                    resizedImage.save(join(destination_dir, imageProperties['label'], basename(imageToProcess)), exif=bytes())
                     resizedImage.close()
                     self.files.append(join(imageProperties['label'], basename(imageToProcess)))
                 im.close()
