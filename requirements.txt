@@ -1,5 +1,5 @@
 ﻿Jinja2==2.10
-markdown2==2.3.7
+markdown2==2.4.0
 MarkupSafe==1.1.0
 Pillow==6.2.0
 python-frontmatter==0.4.4
