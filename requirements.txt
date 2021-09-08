@@ -1,7 +1,7 @@
 ﻿Jinja2==2.10
 markdown2==2.3.7
 MarkupSafe==1.1.0
-Pillow==6.2.0
+Pillow==8.3.2
 python-frontmatter==0.4.4
 PyYAML>=4.2b1
 six==1.12.0
